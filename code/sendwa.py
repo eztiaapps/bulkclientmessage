@@ -73,7 +73,7 @@ def send(listname):
     f1 = pd.read_excel(listname).loc[st:end]
 
     #add a delay between page load and sending the message
-    delay = 15
+    delay = 20
 
     #Load chrome driver
     driver = webdriver.Chrome()
@@ -100,6 +100,7 @@ def send(listname):
                     driver.switch_to.window(driver.window_handles[-1]); 
                     
                     try:
+                        print('Sending message to {}'.format(phoneNumber))
                         click_btn = WebDriverWait(driver, delay).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[2]/button/span')))
                         click_btn.click()
                         sleep(3)
@@ -123,6 +124,6 @@ def send(listname):
 
 
 if __name__ == "__main__":
-    #prep('../data/testdata.xlsx')
+    prep('../data/testdata.xlsx')
     #sleep(10)
     send('../data/testlist.xlsx')
