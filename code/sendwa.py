@@ -15,6 +15,7 @@ f = open("../data/message.txt", "r", encoding="utf8")
 message = f.read()
 f.close()
 
+
 #Styling
 os.system("")
 os.environ["WDM_LOG_LEVEL"] = "0"
@@ -87,7 +88,7 @@ def send(listname):
     for index, row in f1.iterrows():
         try:
             phoneNumber = str(row["MOBILENO"])
-            text = row["MESSAGE_TITLE"] + '\n ' + message
+            text = row["MESSAGE_TITLE"] + message
             url = 'https://web.whatsapp.com/send?phone=' + phoneNumber + '&text=' + text
             sent = False
             for i in range(1):
@@ -104,7 +105,6 @@ def send(listname):
                         sleep(3)
                         
                     except Exception as e:
-                        
                         print(style.RED + f"\nFailed to send message to: {phoneNumber}, retry ({i+1}/3)")
                         print("Make sure your phone and computer is connected to the internet.")
                         print("If there is an alert, please dismiss it." + style.RESET)
