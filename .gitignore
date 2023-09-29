@@ -1,3 +1,6 @@
 *.xlsx
 *.txt
 .gitignore
+
+#do not ignore these files.
+!message.txt
