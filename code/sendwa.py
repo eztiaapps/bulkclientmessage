@@ -10,8 +10,10 @@ from urllib.parse import quote
 import os
 import pickle
 
-
-
+#Promotional Message
+f = open("../data/message.txt", "r", encoding="utf8")
+message = f.read()
+f.close()
 
 #Styling
 os.system("")
@@ -49,32 +51,78 @@ def prep(filename):
     #Rows that has values
     df = df[df['MOBILENO'].notna()]
 
-    #First name respect
-    df['FN'] = df['NAME'].apply(lambda x: x.split(' ')[0])
-
     #Create sent message title
-    df['MESSAGE_TITLE'] = df['FN'].apply(lambda x: 'Dear ' + x.title() + ',' )
+    df['MESSAGE_TITLE'] = df['NAME'].apply(lambda x: 'Dear ' + x.title() + ',' )
 
     #save the processed data
-    df.to_excel("../data/AundhList.xlsx", index = False)
+    df.to_excel("../data/testlist.xlsx", index = False)
 
     print(df.head())
     return df
 
 
-def send():
+
+def send(listname):
     #Read the contact list
     #send msg batch 200
 
-    f1 = pd.read_excel('../data/AundhList.xlsx').loc[0:199]
+    st = 0
+    end = 2
+
+    f1 = pd.read_excel(listname).loc[st:end]
 
     #add a delay between page load and sending the message
-    delay = 20
-    print(f1)
+    delay = 15
 
-    return f1
+    #Load chrome driver
+    driver = webdriver.Chrome()
+
+    #Load Whatsapp web and login
+    print('Once your browser opens up sign in to web whatsapp')
+    driver.get('https://web.whatsapp.com')
+    input(style.MAGENTA + "AFTER logging into Whatsapp Web is complete and your chats are visible, press ENTER..." + style.RESET)
+    sleep(2)
+
+    
+    for index, row in f1.iterrows():
+        try:
+            phoneNumber = str(row["MOBILENO"])
+            text = row["MESSAGE_TITLE"] + '\n ' + message
+            url = 'https://web.whatsapp.com/send?phone=' + phoneNumber + '&text=' + text
+            sent = False
+            for i in range(1):
+                if not sent:
+                    #Get the web.whatsapp.com page to compose and send the message.
+                    driver.get(url)
+                    #If the current window is not in focus, it is throwing error and sending message.
+                    #Bring the current window into focus.
+                    driver.switch_to.window(driver.window_handles[-1]); 
+                    
+                    try:
+                        click_btn = WebDriverWait(driver, delay).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[2]/button/span')))
+                        click_btn.click()
+                        sleep(3)
+                        
+                    except Exception as e:
+                        
+                        print(style.RED + f"\nFailed to send message to: {phoneNumber}, retry ({i+1}/3)")
+                        print("Make sure your phone and computer is connected to the internet.")
+                        print("If there is an alert, please dismiss it." + style.RESET)
+                else:
+                    sleep(3)
+                    click_btn.click()
+                    sent=True
+                    sleep(3)
+                    print(style.GREEN + 'Message sent to: ' + phoneNumber + style.RESET)
+		
+        except Exception as e:
+            print(style.RED + 'Failed to send message to ' + phoneNumber + str(e) + style.RESET)
+
+    driver.quit()
+    return None
 
 
 if __name__ == "__main__":
-    #prep('../data/AUNDH.xlsx')
-    send()
+    #prep('../data/testdata.xlsx')
+    #sleep(10)
+    send('../data/testlist.xlsx')
